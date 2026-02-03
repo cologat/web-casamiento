@@ -1,0 +1,62 @@
+# FLUJO DE TRABAJO: SINCRONIZACIÓN DE ESPEJO
+# ==========================================
+# Este flujo automatiza la réplica del contenido de este repositorio
+# hacia un repositorio externo en una cuenta de GitHub diferente.
+
+name: Sincronización Profesional Espejo
+
+on:
+  push:
+    branches: [ main ] # El disparador se activa al detectar cambios en la rama principal
+
+jobs:
+  mirror:
+    # FILTRO DE SEGURIDAD:
+    # Previene la ejecución del flujo si el código es detectado en un entorno
+    # que no sea el repositorio de origen definido 
+    if: github.repository == 'JSoza1/web-casamiento'
+    runs-on: ubuntu-latest
+    
+    steps:
+      # PASO 1: EXTRACCIÓN DEL CÓDIGO (CHECKOUT)
+      # Se realiza una descarga completa del historial de Git.
+      - name: Descarga de código fuente
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Requerido para permitir 'push --force' con el historial completo
+          persist-credentials: false # Desactiva el token local para usar credenciales externas
+
+      # PASO 2: PROCEDIMIENTO DE SINCRONIZACIÓN
+      # Configura el entorno, limpia automatizaciones y envía los archivos al destino.
+      - name: Sincronizar con repositorio externo
+        env:
+          # Inyección de variables de entorno mediante Secrets de GitHub
+          TOKEN: ${{ secrets.BUSINESS_REPO_TOKEN }}
+          USER_EMAIL: ${{ secrets.GIT_USER_EMAIL }}
+          USER_NAME: ${{ secrets.GIT_USER_NAME }}
+        run: |
+          # A. CONFIGURACIÓN DE IDENTIDAD GLOBAL:
+          # Establece las credenciales del autor para los commits generados por la Action.
+          git config --global user.name "$USER_NAME"
+          git config --global user.email "$USER_EMAIL"
+          
+          # B. DEPURACIÓN DE WORKFLOWS EN EL DESTINO:
+          # Elimina la carpeta de Actions localmente antes de la sincronización.
+          # Esto garantiza que el repositorio espejo no ejecute automatizaciones propias.
+          rm -rf .github/workflows
+          
+          # C. PREPARACIÓN DEL COMMIT DE SINCRONIZACIÓN:
+          # Consolida los cambios en un commit descriptivo. El uso de '|| echo'
+          # asegura que el proceso continúe aunque no existan cambios pendientes.
+          git add .
+          git commit -m "Sync: Actualización automática desde repositorio principal" || echo "No se detectaron cambios"
+          
+          # D. REESTABLECIMIENTO DE AUTENTICACIÓN:
+          # Elimina cabeceras de autorización previas de GitHub Actions para forzar
+          # el uso de la autenticación por token personal (PAT).
+          git config --local --unset-all http.https://github.com/.extraheader || true
+          
+          # E. PUSH FORZADO AL REPOSITORIO DESTINO:
+          # Proyecta el estado actual de la rama 'main' hacia el repositorio espejo.
+          # La autenticación se realiza de forma segura mediante variables en la URL.
+          git push --force https://$USER_NAME:$TOKEN@github.com/Cologat/web-casamiento.git main
