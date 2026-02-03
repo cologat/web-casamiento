@@ -174,6 +174,10 @@ function App() {
           </div>
         )}
       </div>
+
+      <footer className="footer">
+        Desarrollado por <a href="https://sozasystems.vercel.app/" target="_blank" rel="noopener noreferrer">Soza Systems</a>
+      </footer>
     </div>
   );
 }
