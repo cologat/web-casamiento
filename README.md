@@ -102,7 +102,12 @@ Para asegurar el funcionamiento de la aplicación, es necesario desplegar el scr
 5.  Iniciar desarrollo:
     ```bash
     npm run dev
-    ```
+
+---
+
+## 🔗 Visitar Sitio
+Puedes ver el proyecto en funcionamiento aquí:
+👉 **[casamiento-fotos.vercel.app](https://casamiento-fotos.vercel.app/)**
 
 ---
 
