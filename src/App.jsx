@@ -122,7 +122,7 @@ function App() {
   return (
     <div className="container">
       <div className="upload-card">
-        <h1>Boda de G y A 💍</h1>
+        <h1>Boda de Gus y Ana 💍</h1>
         <p className="subtitle">Comparte tus momentos de la boda con nosotros.<br />Sube tus fotos directamente a nuestro Google Drive.</p>
 
         <div className="input-group">
